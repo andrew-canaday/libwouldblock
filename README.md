@@ -3,6 +3,10 @@ libwouldblock
 
 A simple little hack to allow you to debug EAGAIN/EWOULDBLOCK behavior.
 
+License
+-------
+This project is licensed under the Apache License. See LICENSE for details.
+
 Usage:
 ------
 
