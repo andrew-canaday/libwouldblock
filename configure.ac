@@ -91,9 +91,9 @@ AC_TYPE_SSIZE_T
 #-----------------------------
 #        Declarations:
 #-----------------------------
-  AC_CHECK_DECLS([RTLD_NEXT],[],
-          [AC_MSG_ERROR([libwould build requires "$as_decl_name" definition])],
-          [#include <dlfcn.h>])
+AC_CHECK_DECLS([RTLD_NEXT],[],
+        [AC_MSG_ERROR([libwould build requires "$as_decl_name" definition])],
+        [#include <dlfcn.h>])
 
 #-----------------------------
 #       Function Checks:
