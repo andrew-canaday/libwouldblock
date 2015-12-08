@@ -21,8 +21,8 @@
 /*--------------------------------
  *           Macros:
  *--------------------------------*/
-#define WB_MAX(x,y) (x > y ? x : y)
-#define WB_MIN(x,y) (x < y ? x : y)
+#define LWB_MAX(x,y) (x > y ? x : y)
+#define LWB_MIN(x,y) (x < y ? x : y)
 
 /*--------------------------------
  *          Globals:
@@ -30,6 +30,15 @@
 static long accept_min;
 static long recv_min;
 static long send_min;
+
+static ssize_t
+(*std_accept)(int, struct sockaddr* restrict, socklen_t* restrict) = NULL;
+
+static ssize_t
+(*std_recv)(int socket, void* buffer, size_t length, int flags) = NULL;
+
+static ssize_t
+(*std_send)(int socket, const void* buffer, size_t length, int flags) = NULL;
 
 
 /*--------------------------------
@@ -53,7 +62,7 @@ static long wb_get_arg_range(const char* val_name)
     char* arg_val = getenv(val_name);
     if( arg_val ) {
         r_val = atoi(arg_val);
-        r_val = WB_MAX(0,WB_MIN(r_val,100));
+        r_val = LWB_MAX(0,LWB_MIN(r_val,100));
     };
     return r_val;
 };
@@ -70,14 +79,29 @@ static void __attribute__((constructor)) wb_init()
     srandom(time(NULL));
 #endif /* HAVE_SRANDDEV */
 
-    accept_min = wb_get_arg_range("WB_PROB_ACCEPT");
-    recv_min = wb_get_arg_range("WB_PROB_SEND");
-    send_min = wb_get_arg_range("WB_PROB_RECV");
+    accept_min = wb_get_arg_range("LWB_PROB_ACCEPT");
+    recv_min = wb_get_arg_range("LWB_PROB_SEND");
+    send_min = wb_get_arg_range("LWB_PROB_RECV");
+    
+    /* Initialize the real accept function pointer: */
+    if( !std_accept ) {
+        std_accept = dlsym(RTLD_NEXT, "accept");
+    };
+
+    /* Initialize the real recv function pointer: */
+    if( !std_recv ) {
+        std_recv = dlsym(RTLD_NEXT, "recv");
+    };
+
+    /* Initialize the real send function pointer: */
+    if( !std_send ) {
+        std_send = dlsym(RTLD_NEXT, "send");
+    };
     return;
 };
 
 #if HAVE_ACCEPT
-/* accept (2) override: invoke the real system accept WB_PROB_ACCEPT percent
+/* accept (2) override: invoke the real system accept LWB_PROB_ACCEPT percent
  * of the time. Else, return EAGAIN.
  */
 int
@@ -87,17 +111,13 @@ accept(
     socklen_t* restrict address_len)
 {
     static size_t counter = 0;
-    static ssize_t (*std_accept)(
-        int, struct sockaddr* restrict, socklen_t* restrict);
-
     long p_accept = random() % 100;
-    if( !std_accept ) {
-        std_accept = dlsym(RTLD_NEXT, "accept");
-    };
 
+    /* Block, artificially: */
     if( p_accept < accept_min ) {
         return std_accept(socket, address, address_len);
     }
+    /* Just execute standard accept: */
     else {
         /* TODO: Check for EAGAIN/EWOULDBLOCK availability/equality @ config */
         errno = EAGAIN;

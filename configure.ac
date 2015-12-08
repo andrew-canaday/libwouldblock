@@ -108,13 +108,17 @@ m4_ifdef([PKG_INSTALLDIR],[PKG_INSTALLDIR],[
 #          Output:
 #-----------------------------
 AC_CONFIG_HEADERS( [wb_config.h] )
-AC_CONFIG_FILES([
+AC_CONFIG_FILES(
+    [
     Makefile
     libwouldblock-$PACKAGE_MAJOR.pc:libwouldblock.pc.in
     lib/Makefile
-    bin/wouldblock.sh],[
+    bin/Makefile
+    bin/wouldblock.sh
+    ],[
     chmod u+x bin/wouldblock.sh
-])
+    ]
+)
 AC_OUTPUT
 AS_BOX([libwouldblock configuration complete])
 
