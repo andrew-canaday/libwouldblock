@@ -12,9 +12,9 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <stdlib.h>
-
+#include <time.h>
 #include <errno.h>
-#include <stdarg.h>
+#include <dlfcn.h>
 
 #include "wb_config.h"
 
@@ -24,30 +24,52 @@ wouldblock_version_str(void)
     return VERSION;
 };
 
+#if 0
 #if HAVE_RECV
 ssize_t
-recv(int socket, void *buffer, size_t length, int flags)
+recv(int socket, void* buffer, size_t length, int flags)
 {
+    static ssize_t (*std_recv)(int, void*, size_t, int) = NULL;
+    if( !std_recv ) {
+        std_recv = dlsym(RTLD_NEXT, "recv");
+    };
+
+
     return 0;
 };
 #endif /* HAVE_RECV */
 
 #if HAVE_SEND
 ssize_t
-send(int socket, const void *buffer, size_t length, int flags)
+send(int socket, const void* buffer, size_t length, int flags)
 {
     return 0;
 };
 #endif /* HAVE_SEND */
+#endif /* 0 */
 
 #if HAVE_ACCEPT
 int
 accept(
     int socket,
-    struct sockaddr *restrict address,
-    socklen_t *restrict address_len)
+    struct sockaddr* restrict address,
+    socklen_t* restrict address_len)
 {
-    return 0;
+    static size_t counter = 0;
+    static ssize_t (*std_accept)(
+        int, struct sockaddr* restrict, socklen_t* restrict);
+    int p_accept = rand() % 100;
+    if( !std_accept ) {
+        std_accept = dlsym(RTLD_NEXT, "accept");
+    };
+
+    if( p_accept > 50 ) {
+        return std_accept(socket, address, address_len);
+    }
+    else {
+        errno = EAGAIN;
+        return -1;
+    };
 };
 #endif /* HAVE_ACCEPT */
 
