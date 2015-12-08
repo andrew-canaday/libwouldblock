@@ -5,50 +5,99 @@
 ##
 ##=============================================================================
 
-#=======
-# Init:
-#=======
-AC_INIT( [libwouldblock], [0.0.0], [andrew.canaday@nytimes.com] )
-
-AC_CONFIG_AUX_DIR([.])
-AM_INIT_AUTOMAKE( [-Wall foreign] )
-
-# Make sure we have a C compiler:
-AC_PROG_CC
-AC_PROG_CXX
-
-# For static linking:
-AM_PROG_AR
-
-# To silence weird warnings:
+#-----------------------------
+#           Init:
+#-----------------------------
+AC_INIT(
+    [libwouldblock], [0.1],
+    [andrew.canaday@nytimes.com],[libwouldblock],
+    [https://github.com/andrew-canaday/libwouldblock])
+AC_CONFIG_AUX_DIR([./build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
-# Make sure we have libtool:
-AC_PROG_LIBTOOL()
-
-# LIBRARY INTERFACE Version:
-AC_SUBST([WOULDBLOCK_LIB_VERSION],[0:0:0])
-
-# Metadata:
-AC_SUBST([PACKAGE_URL],["https://github.com/andrew-canaday/libwouldblock"])
-AC_SUBST([PACKAGE_LICENSE],["Apache 2.0"])
+#-----------------------------
+#         Metadata:
+#-----------------------------
+AC_DEFINE([PACKAGE_LICENSE],["Apache 2.0"],[Package License])
 AC_SUBST([PACKAGE_VENDOR],["Andrew Canaday"])
-AC_SUBST([PACKAGE_COPYRIGHT],["copyright 2015 Andrew Canaday"])
-AC_SUBST([PACKAGE_DESCRIPTION],["C Library for Non-blocking IO Testing"])
-AC_SUBST([PACKAGE_SUMMARY],["C Library for Non-blocking IO Testing"])
+AC_COPYRIGHT([© copyright 2014,2015 Andrew Canaday])
+AC_DEFINE([PACKAGE_COPYRIGHT],
+    ["© copyright 2014,2015 Andrew Canaday"],
+    [Copyright Info])
+AC_SUBST([PACKAGE_DESCRIPTION],
+    ["C library for testing non-blocking IO"])
+AC_SUBST([PACKAGE_SUMMARY],["C library for testing non-blocking IO"])
+AC_SUBST([WB_LIB_VERSION],[0:1:0])
+
+# HACK: get the version components (note: we get awk early here)
+AC_PROG_AWK
+AC_SUBST([PACKAGE_MAJOR],[`echo $PACKAGE_VERSION | awk -F. '{print $1}'`])
+AC_SUBST([PACKAGE_MINOR],[`echo $PACKAGE_VERSION | awk -F. '{print $2}'`])
+AC_SUBST([PACKAGE_PATCH],[`echo $PACKAGE_VERSION | awk -F. '{print $3}'`])
 
 
-#=========
-# Output:
-#=========
-AC_CONFIG_HEADERS( [config.h] )
+#-----------------------------
+#         Programs:
+#-----------------------------
+AM_INIT_AUTOMAKE([-Wall foreign])
+AC_PROG_CC
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
+LT_INIT
+PKG_PROG_PKG_CONFIG([0.24])
+
+
+#-----------------------------
+#         Libraries:
+#-----------------------------
+AX_LIB_SOCKET_NSL
+
+
+#-----------------------------
+#           Headers:
+#-----------------------------
+AC_HEADER_ASSERT
+AC_HEADER_STDC
+AC_CHECK_HEADERS([sys/socket.h])
+AC_CHECK_HEADERS([netinet/in.h])
+AC_CHECK_HEADERS([stddef.h])
+AC_CHECK_HEADERS([sys/time.h])
+
+
+#-----------------------------
+#           Types:
+#-----------------------------
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+
+
+#-----------------------------
+#       Function Checks:
+#-----------------------------
+AC_FUNC_MALLOC
+AC_CHECK_FUNCS([accept])
+AC_CHECK_FUNCS([recv])
+AC_CHECK_FUNCS([send])
+AC_CHECK_FUNCS([strcasecmp])
+AC_CHECK_FUNCS([strdup])
+AC_CHECK_FUNCS([strtol])
+
+
+# Installation options:
+m4_ifdef([PKG_INSTALLDIR],[PKG_INSTALLDIR],[
+    AC_SUBST([pkgconfigdir],[$libdir/pkgconfig])
+])
+
+#-----------------------------
+#          Output:
+#-----------------------------
+AC_CONFIG_HEADERS( [wb_config.h] )
 AC_CONFIG_FILES(
-  Makefile
-  lib/Makefile
-  include/Makefile
-  test/Makefile
-  libwouldblock.pc
+    Makefile
+    libwouldblock-$PACKAGE_MAJOR.pc:libwouldblock.pc.in
+    lib/Makefile
 )
 AC_OUTPUT
+AS_BOX([libwouldblock configuration complete])
 
 ## EOF
+
