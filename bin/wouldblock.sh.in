@@ -1,0 +1,20 @@
+#!/bin/bash
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+export LWB_PROB_ACCEPT
+export LWB_PROB_RECV
+export LWB_PROB_SEND
+
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+    LD_PRELOAD=@libdir@/libwouldblock.so \
+        $*
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    DYLD_FORCE_FLAT_NAMESPACE=1 \
+        DYLD_INSERT_LIBRARIES=@libdir@/libwouldblock.dylib \
+        $*
+fi
+
+# EOF
+
