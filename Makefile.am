@@ -10,6 +10,6 @@ SUBDIRS=\
 	lib 
 
 pkgconfigdir=$(libdir)/pkgconfig
-pkgconfig_DATA=@PACKAGE_NAME@.pc
+pkgconfig_DATA=@PACKAGE_NAME@-@PACKAGE_MAJOR@.pc
 
 ## EOF
