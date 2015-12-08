@@ -27,9 +27,9 @@
 /*--------------------------------
  *          Globals:
  *--------------------------------*/
-static int accept_min;
-static int recv_min;
-static int send_min;
+static long accept_min;
+static long recv_min;
+static long send_min;
 
 
 /*--------------------------------
@@ -47,9 +47,9 @@ wouldblock_version_str(void)
  *---------------------------------*/
 
 /* Used to parse environment args. */
-static int wb_get_arg_range(const char* val_name)
+static long wb_get_arg_range(const char* val_name)
 {
-    int r_val = 0;
+    long r_val = 100;
     char* arg_val = getenv(val_name);
     if( arg_val ) {
         r_val = atoi(arg_val);
@@ -65,9 +65,9 @@ static int wb_get_arg_range(const char* val_name)
 static void __attribute__((constructor)) wb_init()
 {
 #if HAVE_SRANDDEV
-    sranddev();
+    srandomdev();
 #else
-    srand(time(NULL));
+    srandom(time(NULL));
 #endif /* HAVE_SRANDDEV */
 
     accept_min = wb_get_arg_range("WB_PROB_ACCEPT");
@@ -90,7 +90,7 @@ accept(
     static ssize_t (*std_accept)(
         int, struct sockaddr* restrict, socklen_t* restrict);
 
-    int p_accept = rand() % 100;
+    long p_accept = random() % 100;
     if( !std_accept ) {
         std_accept = dlsym(RTLD_NEXT, "accept");
     };
