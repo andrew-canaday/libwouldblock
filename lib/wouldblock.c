@@ -27,9 +27,9 @@
 /*--------------------------------
  *          Globals:
  *--------------------------------*/
-static int accept_min = 0;
-static int recv_min = 0;
-static int send_min = 0;
+static int accept_min;
+static int recv_min;
+static int send_min;
 
 
 /*--------------------------------
@@ -45,6 +45,23 @@ wouldblock_version_str(void)
 /*---------------------------------
  *        Private Functions:
  *---------------------------------*/
+
+/* Used to parse environment args. */
+static int wb_get_arg_range(const char* val_name)
+{
+    int r_val = 0;
+    char* arg_val = getenv(val_name);
+    if( arg_val ) {
+        r_val = atoi(arg_val);
+        r_val = WB_MAX(0,WB_MIN(r_val,100));
+    };
+    return r_val;
+};
+
+/* Library initialization.
+ * TODO: use .init linker mechanism if __attribute__((constructor)) is not
+ * avaiable!
+ */
 static void __attribute__((constructor)) wb_init()
 {
 #if HAVE_SRANDDEV
@@ -53,15 +70,16 @@ static void __attribute__((constructor)) wb_init()
     srand(time(NULL));
 #endif /* HAVE_SRANDDEV */
 
-    char* accept_arg = getenv("WB_ACCEPT_PROB");
-    if( accept_arg ) {
-        int accept_val = atoi(accept_arg);
-        accept_min = WB_MAX(0,WB_MIN(accept_val,100));
-    };
+    accept_min = wb_get_arg_range("WB_PROB_ACCEPT");
+    recv_min = wb_get_arg_range("WB_PROB_SEND");
+    send_min = wb_get_arg_range("WB_PROB_RECV");
     return;
 };
 
 #if HAVE_ACCEPT
+/* accept (2) override: invoke the real system accept WB_PROB_ACCEPT percent
+ * of the time. Else, return EAGAIN.
+ */
 int
 accept(
     int socket,
@@ -81,6 +99,7 @@ accept(
         return std_accept(socket, address, address_len);
     }
     else {
+        /* TODO: Check for EAGAIN/EWOULDBLOCK availability/equality @ config */
         errno = EAGAIN;
         return -1;
     };
