@@ -92,6 +92,12 @@ AC_CHECK_FUNCS([getenv])
 
 
 #-----------------------------
+#      Compiler Features:
+#-----------------------------
+AX_GCC_FUNC_ATTRIBUTE([constructor])
+
+
+#-----------------------------
 #    Configuration Options:
 #-----------------------------
 m4_ifdef([PKG_INSTALLDIR],[PKG_INSTALLDIR],[

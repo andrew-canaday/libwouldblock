@@ -18,35 +18,33 @@
 
 #include "wb_config.h"
 
+/*--------------------------------
+ *          Globals:
+ *--------------------------------*/
+static unsigned int accept_min;
+static unsigned int recv_min;
+static unsigned int send_min;
+
+
+/*--------------------------------
+ *          Public API:
+ *--------------------------------*/
 const char*
 wouldblock_version_str(void)
 {
     return VERSION;
 };
 
-#if 0
-#if HAVE_RECV
-ssize_t
-recv(int socket, void* buffer, size_t length, int flags)
+
+/*---------------------------------
+ *        Private Functions:
+ *---------------------------------*/
+static void __attribute__((constructor)) wb_init()
 {
-    static ssize_t (*std_recv)(int, void*, size_t, int) = NULL;
-    if( !std_recv ) {
-        std_recv = dlsym(RTLD_NEXT, "recv");
-    };
-
-
-    return 0;
+    srand(time(NULL));
+    
+    return;
 };
-#endif /* HAVE_RECV */
-
-#if HAVE_SEND
-ssize_t
-send(int socket, const void* buffer, size_t length, int flags)
-{
-    return 0;
-};
-#endif /* HAVE_SEND */
-#endif /* 0 */
 
 #if HAVE_ACCEPT
 int
@@ -72,5 +70,24 @@ accept(
     };
 };
 #endif /* HAVE_ACCEPT */
+
+#if 0
+#if HAVE_RECV
+ssize_t
+recv(int socket, void* buffer, size_t length, int flags)
+{
+    return 0;
+};
+#endif /* HAVE_RECV */
+
+#if HAVE_SEND
+ssize_t
+send(int socket, const void* buffer, size_t length, int flags)
+{
+    return 0;
+};
+#endif /* HAVE_SEND */
+#endif /* 0 */
+
 
 /* EOF */
