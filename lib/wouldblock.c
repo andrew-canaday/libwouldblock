@@ -19,11 +19,17 @@
 #include "wb_config.h"
 
 /*--------------------------------
+ *           Macros:
+ *--------------------------------*/
+#define WB_MAX(x,y) (x > y ? x : y)
+#define WB_MIN(x,y) (x < y ? x : y)
+
+/*--------------------------------
  *          Globals:
  *--------------------------------*/
-static unsigned int accept_min;
-static unsigned int recv_min;
-static unsigned int send_min;
+static int accept_min = 0;
+static int recv_min = 0;
+static int send_min = 0;
 
 
 /*--------------------------------
@@ -41,8 +47,17 @@ wouldblock_version_str(void)
  *---------------------------------*/
 static void __attribute__((constructor)) wb_init()
 {
+#if HAVE_SRANDDEV
+    sranddev();
+#else
     srand(time(NULL));
-    
+#endif /* HAVE_SRANDDEV */
+
+    char* accept_arg = getenv("WB_ACCEPT_PROB");
+    if( accept_arg ) {
+        int accept_val = atoi(accept_arg);
+        accept_min = WB_MAX(0,WB_MIN(accept_val,100));
+    };
     return;
 };
 
@@ -56,12 +71,13 @@ accept(
     static size_t counter = 0;
     static ssize_t (*std_accept)(
         int, struct sockaddr* restrict, socklen_t* restrict);
+
     int p_accept = rand() % 100;
     if( !std_accept ) {
         std_accept = dlsym(RTLD_NEXT, "accept");
     };
 
-    if( p_accept > 50 ) {
+    if( p_accept < accept_min ) {
         return std_accept(socket, address, address_len);
     }
     else {
