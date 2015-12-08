@@ -27,7 +27,7 @@ AC_DEFINE([PACKAGE_COPYRIGHT],
 AC_SUBST([PACKAGE_DESCRIPTION],
     ["C library for testing non-blocking IO"])
 AC_SUBST([PACKAGE_SUMMARY],["C library for testing non-blocking IO"])
-AC_SUBST([WB_LIB_VERSION],[0:1:0])
+AC_SUBST([WOULDBLOCK_LIB_VERSION],[0:1:0])
 
 # HACK: get the version components (note: we get awk early here)
 AC_PROG_AWK
