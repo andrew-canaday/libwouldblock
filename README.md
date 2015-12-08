@@ -18,8 +18,8 @@ actually being invoked. The remainder of the time, the call returns
 ```Shell
 # accept 80% of the time, recv 90% of the time and send 100% of the time:
 LWB_ACCEPT_PROB=80 \
-LWB_RECV=90 \
-LWB_SEND=100 \
+LWB_RECV_PROB=90 \
+LWB_SEND_PROB=100 \
     wouldblock.sh
 ```
 
