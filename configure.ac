@@ -86,8 +86,9 @@ AC_CHECK_FUNCS([accept])
 AC_CHECK_FUNCS([send])
 AC_CHECK_FUNCS([recv])
 AC_CHECK_FUNCS([dlsym])
-AC_CHECK_FUNCS([srand])
 AC_CHECK_FUNCS([rand])
+AC_CHECK_FUNCS([srand])
+AC_CHECK_FUNCS([sranddev])
 AC_CHECK_FUNCS([getenv])
 
 
