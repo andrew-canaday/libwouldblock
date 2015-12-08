@@ -61,6 +61,7 @@ AC_CHECK_HEADERS([sys/socket.h])
 AC_CHECK_HEADERS([netinet/in.h])
 AC_CHECK_HEADERS([stddef.h])
 AC_CHECK_HEADERS([sys/time.h])
+AC_CHECK_HEADERS([dlfcn.h])
 
 
 #-----------------------------
@@ -71,18 +72,26 @@ AC_TYPE_SSIZE_T
 
 
 #-----------------------------
+#        Declarations:
+#-----------------------------
+  AC_CHECK_DECLS([RTLD_NEXT],[],
+          [AC_MSG_ERROR([libwould build requires "$as_decl_name" definition])],
+          [#include <dlfcn.h>])
+
+#-----------------------------
 #       Function Checks:
 #-----------------------------
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([accept])
 AC_CHECK_FUNCS([recv])
 AC_CHECK_FUNCS([send])
-AC_CHECK_FUNCS([strcasecmp])
-AC_CHECK_FUNCS([strdup])
-AC_CHECK_FUNCS([strtol])
+AC_CHECK_FUNCS([dlsym])
+AC_CHECK_FUNCS([getenv])
 
 
-# Installation options:
+#-----------------------------
+#    Configuration Options:
+#-----------------------------
 m4_ifdef([PKG_INSTALLDIR],[PKG_INSTALLDIR],[
     AC_SUBST([pkgconfigdir],[$libdir/pkgconfig])
 ])
