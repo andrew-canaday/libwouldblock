@@ -120,7 +120,6 @@ accept(
     struct sockaddr* restrict address,
     socklen_t* restrict address_len)
 {
-    static size_t counter = 0;
     long p_accept = random() % 100;
 
     /* Block, artificially: */
@@ -136,11 +135,22 @@ accept(
 };
 #endif /* HAVE_ACCEPT */
 
-#if 0
 #if HAVE_RECV
 ssize_t
 recv(int socket, void* buffer, size_t length, int flags)
 {
+    long p_recv = random() % 100;
+
+    /* Block, artificially: */
+    if( p_recv < recv_min ) {
+        return std_recv(socket, buffer, length, flags);
+    }
+    /* Just execute standard recv: */
+    else {
+        /* TODO: Check for EAGAIN/EWOULDBLOCK availability/equality @ config */
+        errno = EAGAIN;
+        return -1;
+    };
     return 0;
 };
 #endif /* HAVE_RECV */
@@ -149,10 +159,20 @@ recv(int socket, void* buffer, size_t length, int flags)
 ssize_t
 send(int socket, const void* buffer, size_t length, int flags)
 {
+    long p_send = random() % 100;
+
+    /* Block, artificially: */
+    if( p_send < send_min ) {
+        return std_send(socket, buffer, length, flags);
+    }
+    /* Just execute standard send: */
+    else {
+        /* TODO: Check for EAGAIN/EWOULDBLOCK availability/equality @ config */
+        errno = EAGAIN;
+        return -1;
+    };
     return 0;
 };
 #endif /* HAVE_SEND */
-#endif /* 0 */
-
 
 /* EOF */
