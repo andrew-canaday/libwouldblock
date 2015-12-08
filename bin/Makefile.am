@@ -1,6 +1,6 @@
 ##=============================================================================
 ##
-## libwouldblock: src/Makefile.am
+## libwouldblock: bin/Makefile.am
 ##
 ##=============================================================================
 #==============================================================================
@@ -21,14 +21,8 @@
 # limitations under the License.
 #==============================================================================
 
-lib_LTLIBRARIES=\
-	libwouldblock.la
-
-libwouldblock_la_LDFLAGS=\
-	-version-info ${WOULDBLOCK_LIB_VERSION}
-
-libwouldblock_la_SOURCES=\
-	wouldblock.c
+bin_SCRIPTS = wouldblock.sh 
+CLEANFILES = $(bin_SCRIPTS)
 
 # EOF
 
