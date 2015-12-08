@@ -20,7 +20,7 @@ actually being invoked. The remainder of the time, the call returns
 LWB_ACCEPT_PROB=80 \
 LWB_RECV_PROB=90 \
 LWB_SEND_PROB=100 \
-    wouldblock.sh
+    wouldblock.sh my_exec --opt=val arg1 arg2
 ```
 
 Installation:
