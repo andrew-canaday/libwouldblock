@@ -7,6 +7,7 @@
 ACLOCAL_AMFLAGS=-Im4
 
 SUBDIRS=\
+	bin \
 	lib 
 
 pkgconfigdir=$(libdir)/pkgconfig
