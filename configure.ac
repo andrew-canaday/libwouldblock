@@ -103,9 +103,12 @@ AC_CHECK_FUNCS([accept])
 AC_CHECK_FUNCS([send])
 AC_CHECK_FUNCS([recv])
 AC_CHECK_FUNCS([dlsym])
+AC_CHECK_FUNCS([rand])
+AC_CHECK_FUNCS([srand])
+AC_CHECK_FUNCS([sranddev])
+AC_CHECK_FUNCS([random])
 AC_CHECK_FUNCS([srandom])
 AC_CHECK_FUNCS([srandomdev])
-AC_CHECK_FUNCS([random])
 AC_CHECK_FUNCS([getenv])
 
 
@@ -114,6 +117,7 @@ AC_CHECK_FUNCS([getenv])
 #-----------------------------
 AX_GCC_FUNC_ATTRIBUTE([constructor])
 AC_C_RESTRICT
+AC_C_INLINE
 
 #-----------------------------
 #    Configuration Options:
