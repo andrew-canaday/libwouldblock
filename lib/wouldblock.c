@@ -31,16 +31,14 @@
 /*--------------------------------
  *           Macros:
  *--------------------------------*/
+#define LWB_RAND_MAX 100
 #define LWB_MAX(x,y) (x > y ? x : y)
 #define LWB_MIN(x,y) (x < y ? x : y)
 
-/*--------------------------------
- *          Globals:
- *--------------------------------*/
-static long accept_min;
-static long recv_min;
-static long send_min;
 
+/*--------------------------------
+ *           Types:
+ *--------------------------------*/
 typedef ssize_t
 (*accept_fn_t)(int, struct sockaddr* restrict, socklen_t* restrict);
 
@@ -50,9 +48,17 @@ typedef ssize_t
 typedef ssize_t
 (*send_fn_t)(int socket, const void* buffer, size_t length, int flags);
 
+
+/*--------------------------------
+ *          Globals:
+ *--------------------------------*/
+static long accept_min;
+static long recv_min;
+static long send_min;
 static accept_fn_t std_accept;
 static recv_fn_t std_recv;
 static send_fn_t std_send;
+
 
 /*--------------------------------
  *          Public API:
@@ -71,13 +77,38 @@ wouldblock_version_str(void)
 /* Used to parse environment args. */
 static long wb_get_arg_range(const char* val_name)
 {
-    long r_val = 100;
+    long r_val = LWB_RAND_MAX;
     char* arg_val = getenv(val_name);
     if( arg_val ) {
         r_val = atoi(arg_val);
-        r_val = LWB_MAX(0,LWB_MIN(r_val,100));
+        r_val = LWB_MAX(0,LWB_MIN(r_val,LWB_RAND_MAX));
     };
     return r_val;
+}
+
+/* Wrapper for srandom(dev)/srand(dev), as available. */
+static void wb_seed_random(void)
+{
+#if HAVE_SRANDOMDEV
+    srandomdev();
+#elif HAVE_SRANDOM
+    srandom(time(NULL));
+#elif HAVE_SRANDDEV
+    sranddev();
+#else
+    srand(time(NULL));
+#endif
+    return;
+}
+
+/* Wrapper for random/rand, as available. */
+static inline long wb_random(void)
+{
+#if HAVE_RANDOM
+    return random() % LWB_RAND_MAX;
+#else
+    return rand() % LWB_RAND_MAX;
+#endif /* HAVE_RANDOM */
 }
 
 /* Library initialization.
@@ -86,12 +117,7 @@ static long wb_get_arg_range(const char* val_name)
  */
 static void __attribute__((constructor)) wb_init()
 {
-#if HAVE_SRANDOMDEV
-    srandomdev();
-#else
-    srandom(time(NULL));
-#endif /* HAVE_SRANDDEV */
-
+    wb_seed_random();
     accept_min = wb_get_arg_range("LWB_PROB_ACCEPT");
     recv_min = wb_get_arg_range("LWB_PROB_SEND");
     send_min = wb_get_arg_range("LWB_PROB_RECV");
@@ -123,7 +149,7 @@ accept(
     struct sockaddr* restrict address,
     socklen_t* restrict address_len)
 {
-    long p_accept = random() % 100;
+    long p_accept = wb_random();
 
     /* Block, artificially: */
     if( p_accept < accept_min ) {
@@ -142,7 +168,7 @@ accept(
 ssize_t
 recv(int socket, void* buffer, size_t length, int flags)
 {
-    long p_recv = random() % 100;
+    long p_recv = wb_random();
 
     /* Block, artificially: */
     if( p_recv < recv_min ) {
@@ -162,7 +188,7 @@ recv(int socket, void* buffer, size_t length, int flags)
 ssize_t
 send(int socket, const void* buffer, size_t length, int flags)
 {
-    long p_send = random() % 100;
+    long p_send = wb_random();
 
     /* Block, artificially: */
     if( p_send < send_min ) {
