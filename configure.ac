@@ -26,7 +26,7 @@
 #           Init:
 #-----------------------------
 AC_INIT(
-    [libwouldblock], [0.0.0],
+    [libwouldblock], [0.0.1],
     [andrew.canaday@nytimes.com],[libwouldblock],
     [https://github.com/andrew-canaday/libwouldblock])
 AC_CONFIG_AUX_DIR([./build-aux])
@@ -37,9 +37,9 @@ AC_CONFIG_MACRO_DIR([m4])
 #-----------------------------
 AC_DEFINE([PACKAGE_LICENSE],["Apache 2.0"],[Package License])
 AC_SUBST([PACKAGE_VENDOR],["Andrew Canaday"])
-AC_COPYRIGHT([© copyright 2014,2015 The New York Times Company])
-AC_DEFINE([PACKAGE_COPYRIGHT],
-    ["© copyright 2014,2015 The New York Times Company"],
+AC_COPYRIGHT([© Copyright 2015-2016 The New York Times Company])
+AC_SUBST([PACKAGE_COPYRIGHT],
+    ["© Copyright 2015-2016 The New York Times Company"],
     [Copyright Info])
 AC_SUBST([PACKAGE_DESCRIPTION],
     ["C library for testing non-blocking IO"])
