@@ -110,6 +110,7 @@ AC_CHECK_FUNCS([random])
 AC_CHECK_FUNCS([srandom])
 AC_CHECK_FUNCS([srandomdev])
 AC_CHECK_FUNCS([getenv])
+AC_CHECK_FUNCS([strtol])
 
 
 #-----------------------------
