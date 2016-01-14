@@ -104,6 +104,7 @@ AC_CHECK_FUNCS([send])
 AC_CHECK_FUNCS([recv])
 AC_CHECK_FUNCS([dlsym])
 AC_CHECK_FUNCS([srandom])
+AC_CHECK_FUNCS([srandomdev])
 AC_CHECK_FUNCS([random])
 AC_CHECK_FUNCS([getenv])
 
@@ -112,7 +113,7 @@ AC_CHECK_FUNCS([getenv])
 #      Compiler Features:
 #-----------------------------
 AX_GCC_FUNC_ATTRIBUTE([constructor])
-
+AC_C_RESTRICT
 
 #-----------------------------
 #    Configuration Options:
@@ -120,6 +121,23 @@ AX_GCC_FUNC_ATTRIBUTE([constructor])
 m4_ifdef([PKG_INSTALLDIR],[PKG_INSTALLDIR],[
     AC_SUBST([pkgconfigdir],[$libdir/pkgconfig])
 ])
+
+#--- Maintainer Debug: ---
+# Check for maintainer-debug:
+AC_ARG_ENABLE([maintainer-debug],
+    AS_HELP_STRING(
+        [--enable-maintainer-debug],
+        [VERY verbose logging for maintainer-debug development]))
+
+# If set, extend CFLAGS with ALL KINDS OF VERBOSE INFORMATION:
+AS_IF([test "x$enable_maintainer_debug" = "xyes"], [
+    AC_MSG_NOTICE([COMPILING WITH MAINTAINER DEBUG CFLAGS])
+    CFLAGS="${CFLAGS} \
+        -O0 -g -std=c99 -pedantic -Wall -Werror \
+        -Wno-error=nonnull -Wundef"
+    ])
+AM_CONDITIONAL([MAINTAINER_DEBUG],[test "x$enable_maintainer_debug" = "xyes"])
+
 
 #-----------------------------
 #          Output:
