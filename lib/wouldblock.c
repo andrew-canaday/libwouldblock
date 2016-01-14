@@ -41,15 +41,18 @@ static long accept_min;
 static long recv_min;
 static long send_min;
 
-static ssize_t
-(*std_accept)(int, struct sockaddr* restrict, socklen_t* restrict) = NULL;
+typedef ssize_t
+(*accept_fn_t)(int, struct sockaddr* restrict, socklen_t* restrict);
 
-static ssize_t
-(*std_recv)(int socket, void* buffer, size_t length, int flags) = NULL;
+typedef ssize_t
+(*recv_fn_t)(int socket, void* buffer, size_t length, int flags);
 
-static ssize_t
-(*std_send)(int socket, const void* buffer, size_t length, int flags) = NULL;
+typedef ssize_t
+(*send_fn_t)(int socket, const void* buffer, size_t length, int flags);
 
+static accept_fn_t std_accept;
+static recv_fn_t std_recv;
+static send_fn_t std_send;
 
 /*--------------------------------
  *          Public API:
@@ -95,17 +98,17 @@ static void __attribute__((constructor)) wb_init()
     
     /* Initialize the real accept function pointer: */
     if( !std_accept ) {
-        std_accept = dlsym(RTLD_NEXT, "accept");
+        std_accept = (accept_fn_t)dlsym(RTLD_NEXT, "accept");
     };
 
     /* Initialize the real recv function pointer: */
     if( !std_recv ) {
-        std_recv = dlsym(RTLD_NEXT, "recv");
+        std_recv = (recv_fn_t)dlsym(RTLD_NEXT, "recv");
     };
 
     /* Initialize the real send function pointer: */
     if( !std_send ) {
-        std_send = dlsym(RTLD_NEXT, "send");
+        std_send = (send_fn_t)dlsym(RTLD_NEXT, "send");
     };
     return;
 }
