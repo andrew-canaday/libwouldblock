@@ -31,9 +31,9 @@
 /*--------------------------------
  *           Macros:
  *--------------------------------*/
-#define LWB_RAND_MAX 100
-#define LWB_MAX(x,y) (x > y ? x : y)
-#define LWB_MIN(x,y) (x < y ? x : y)
+#define WB_PROB_MAX 100
+#define WB_MAX(x,y) (x > y ? x : y)
+#define WB_MIN(x,y) (x < y ? x : y)
 
 
 /*--------------------------------
@@ -77,11 +77,11 @@ wouldblock_version_str(void)
 /* Used to parse environment args. */
 static long wb_get_arg_range(const char* val_name)
 {
-    long r_val = LWB_RAND_MAX;
+    long r_val = WB_PROB_MAX;
     char* arg_val = getenv(val_name);
     if( arg_val ) {
         r_val = atoi(arg_val);
-        r_val = LWB_MAX(0,LWB_MIN(r_val,LWB_RAND_MAX));
+        r_val = WB_MAX(0,WB_MIN(r_val,WB_PROB_MAX));
     };
     return r_val;
 }
@@ -105,9 +105,9 @@ static void wb_seed_random(void)
 static inline long wb_random(void)
 {
 #if HAVE_RANDOM
-    return random() % LWB_RAND_MAX;
+    return random();
 #else
-    return rand() % LWB_RAND_MAX;
+    return rand();
 #endif /* HAVE_RANDOM */
 }
 
@@ -118,9 +118,9 @@ static inline long wb_random(void)
 static void __attribute__((constructor)) wb_init()
 {
     wb_seed_random();
-    accept_min = wb_get_arg_range("LWB_PROB_ACCEPT");
-    recv_min = wb_get_arg_range("LWB_PROB_SEND");
-    send_min = wb_get_arg_range("LWB_PROB_RECV");
+    accept_min = wb_get_arg_range("WB_PROB_ACCEPT");
+    recv_min = wb_get_arg_range("WB_PROB_SEND");
+    send_min = wb_get_arg_range("WB_PROB_RECV");
     
     /* Initialize the real accept function pointer: */
     if( !std_accept ) {
@@ -140,7 +140,7 @@ static void __attribute__((constructor)) wb_init()
 }
 
 #if HAVE_ACCEPT
-/* accept (2) override: invoke the real system accept LWB_PROB_ACCEPT percent
+/* accept (2) override: invoke the real system accept WB_PROB_ACCEPT percent
  * of the time. Else, return EAGAIN.
  */
 int
@@ -149,7 +149,7 @@ accept(
     struct sockaddr* restrict address,
     socklen_t* restrict address_len)
 {
-    long p_accept = wb_random();
+    long p_accept = wb_random() % WB_PROB_MAX;
 
     /* Block, artificially: */
     if( p_accept < accept_min ) {
@@ -168,7 +168,7 @@ accept(
 ssize_t
 recv(int socket, void* buffer, size_t length, int flags)
 {
-    long p_recv = wb_random();
+    long p_recv = wb_random() % WB_PROB_MAX;
 
     /* Block, artificially: */
     if( p_recv < recv_min ) {
@@ -188,7 +188,7 @@ recv(int socket, void* buffer, size_t length, int flags)
 ssize_t
 send(int socket, const void* buffer, size_t length, int flags)
 {
-    long p_send = wb_random();
+    long p_send = wb_random() % WB_PROB_MAX;
 
     /* Block, artificially: */
     if( p_send < send_min ) {
