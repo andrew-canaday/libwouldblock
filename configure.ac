@@ -26,7 +26,7 @@
 #           Init:
 #-----------------------------
 AC_INIT(
-    [libwouldblock], [0.0.0],
+    [libwouldblock], [0.0.1],
     [andrew.canaday@nytimes.com],[libwouldblock],
     [https://github.com/andrew-canaday/libwouldblock])
 AC_CONFIG_AUX_DIR([./build-aux])
@@ -37,9 +37,9 @@ AC_CONFIG_MACRO_DIR([m4])
 #-----------------------------
 AC_DEFINE([PACKAGE_LICENSE],["Apache 2.0"],[Package License])
 AC_SUBST([PACKAGE_VENDOR],["Andrew Canaday"])
-AC_COPYRIGHT([© copyright 2014,2015 The New York Times Company])
-AC_DEFINE([PACKAGE_COPYRIGHT],
-    ["© copyright 2014,2015 The New York Times Company"],
+AC_COPYRIGHT([© Copyright 2015-2016 The New York Times Company])
+AC_SUBST([PACKAGE_COPYRIGHT],
+    ["© Copyright 2015-2016 The New York Times Company"],
     [Copyright Info])
 AC_SUBST([PACKAGE_DESCRIPTION],
     ["C library for testing non-blocking IO"])
@@ -103,8 +103,12 @@ AC_CHECK_FUNCS([accept])
 AC_CHECK_FUNCS([send])
 AC_CHECK_FUNCS([recv])
 AC_CHECK_FUNCS([dlsym])
-AC_CHECK_FUNCS([srandom])
+AC_CHECK_FUNCS([rand])
+AC_CHECK_FUNCS([srand])
+AC_CHECK_FUNCS([sranddev])
 AC_CHECK_FUNCS([random])
+AC_CHECK_FUNCS([srandom])
+AC_CHECK_FUNCS([srandomdev])
 AC_CHECK_FUNCS([getenv])
 
 
@@ -112,7 +116,8 @@ AC_CHECK_FUNCS([getenv])
 #      Compiler Features:
 #-----------------------------
 AX_GCC_FUNC_ATTRIBUTE([constructor])
-
+AC_C_RESTRICT
+AC_C_INLINE
 
 #-----------------------------
 #    Configuration Options:
@@ -120,6 +125,23 @@ AX_GCC_FUNC_ATTRIBUTE([constructor])
 m4_ifdef([PKG_INSTALLDIR],[PKG_INSTALLDIR],[
     AC_SUBST([pkgconfigdir],[$libdir/pkgconfig])
 ])
+
+#--- Maintainer Debug: ---
+# Check for maintainer-debug:
+AC_ARG_ENABLE([maintainer-debug],
+    AS_HELP_STRING(
+        [--enable-maintainer-debug],
+        [VERY verbose logging for maintainer-debug development]))
+
+# If set, extend CFLAGS with ALL KINDS OF VERBOSE INFORMATION:
+AS_IF([test "x$enable_maintainer_debug" = "xyes"], [
+    AC_MSG_NOTICE([COMPILING WITH MAINTAINER DEBUG CFLAGS])
+    CFLAGS="${CFLAGS} \
+        -O0 -g -std=c99 -pedantic -Wall -Werror \
+        -Wno-error=nonnull -Wundef"
+    ])
+AM_CONDITIONAL([MAINTAINER_DEBUG],[test "x$enable_maintainer_debug" = "xyes"])
+
 
 #-----------------------------
 #          Output:
