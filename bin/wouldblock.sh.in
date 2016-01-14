@@ -1,4 +1,11 @@
 #!/bin/bash
+#------------------------------------------------------------------------------
+# @PACKAGE_NAME@ @PACKAGE_VERSION@
+# @PACKAGE_DESCRIPTION@
+# @PACKAGE_COPYRIGHT@
+# See: @PACKAGE_URL@
+# Bugs: @PACKAGE_BUGREPORT@
+#------------------------------------------------------------------------------
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
