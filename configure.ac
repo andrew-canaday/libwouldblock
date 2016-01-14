@@ -98,18 +98,28 @@ AC_CHECK_DECLS([RTLD_NEXT],[],
 #-----------------------------
 #       Function Checks:
 #-----------------------------
-AC_FUNC_MALLOC
+
+# Required:
+AC_CHECK_FUNCS([getenv],[],
+        [AC_MSG_ERROR([libwouldblock requires getenv])])
+AC_CHECK_FUNCS([dlsym],[],
+        [AC_MSG_ERROR([libwouldblock requires dlsym])])
+AC_CHECK_FUNCS([time],[],
+        [AC_MSG_ERROR([libwouldblock requires time])])
+
+# For override:
 AC_CHECK_FUNCS([accept])
 AC_CHECK_FUNCS([send])
 AC_CHECK_FUNCS([recv])
-AC_CHECK_FUNCS([dlsym])
-AC_CHECK_FUNCS([rand])
-AC_CHECK_FUNCS([srand])
-AC_CHECK_FUNCS([sranddev])
-AC_CHECK_FUNCS([random])
-AC_CHECK_FUNCS([srandom])
-AC_CHECK_FUNCS([srandomdev])
-AC_CHECK_FUNCS([getenv])
+
+# Optional:
+AC_CHECK_FUNCS([random srandom],[
+        AC_DEFINE([wb_random],[random],[Use random to generate random values]),
+        AC_DEFINE([wb_srandom],[srandom],[Use srandom to seed random values])
+        ],[
+        AC_DEFINE([wb_random],[rand],[Use rand to generate random values])
+        AC_DEFINE([wb_srandom],[srand],[Use srand to seed random values])
+        ])
 AC_CHECK_FUNCS([strtol])
 
 
