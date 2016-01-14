@@ -3,6 +3,7 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
+License: Licesned under the Apache 2.0 License (see LICENSE for details)
 Name: @PACKAGE_NAME@
 Author: @PACKAGE_BUGREPORT@
 Copyright: @PACKAGE_COPYRIGHT@
