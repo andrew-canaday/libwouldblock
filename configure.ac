@@ -72,13 +72,9 @@ AX_LIB_SOCKET_NSL
 #-----------------------------
 #           Headers:
 #-----------------------------
-AC_HEADER_ASSERT
 AC_HEADER_STDC
-AC_CHECK_HEADERS([sys/socket.h])
-AC_CHECK_HEADERS([netinet/in.h])
-AC_CHECK_HEADERS([stddef.h])
-AC_CHECK_HEADERS([sys/time.h])
-AC_CHECK_HEADERS([dlfcn.h])
+AC_CHECK_HEADERS([sys/types.h sys/socket.h dlfcn.h],[],[
+    AC_MSG_ERROR([Required header files not found])])
 
 
 #-----------------------------
@@ -92,29 +88,23 @@ AC_TYPE_SSIZE_T
 #        Declarations:
 #-----------------------------
 AC_CHECK_DECLS([RTLD_NEXT],[],
-        [AC_MSG_ERROR([libwould build requires "$as_decl_name" definition])],
-        [#include <dlfcn.h>])
+    [AC_MSG_ERROR([libwould build requires "$as_decl_name" definition])],
+    [#include <dlfcn.h>])
 
 #-----------------------------
 #       Function Checks:
 #-----------------------------
 
 # Required:
-AC_CHECK_FUNCS([getenv],[],
-        [AC_MSG_ERROR([libwouldblock requires getenv])])
-AC_CHECK_FUNCS([dlsym],[],
-        [AC_MSG_ERROR([libwouldblock requires dlsym])])
-AC_CHECK_FUNCS([time],[],
-        [AC_MSG_ERROR([libwouldblock requires time])])
+AC_CHECK_FUNCS([getenv dlsym time],[],[
+    AC_MSG_ERROR([Required functions not found])])
 
 # For override:
-AC_CHECK_FUNCS([accept])
-AC_CHECK_FUNCS([send])
-AC_CHECK_FUNCS([recv])
+AC_CHECK_FUNCS([accept send recv])
 
 # Optional:
 AC_CHECK_FUNCS([random srandom],[
-        AC_DEFINE([wb_random],[random],[Use random to generate random values]),
+        AC_DEFINE([wb_random],[random],[Use random to generate random values])
         AC_DEFINE([wb_srandom],[srandom],[Use srandom to seed random values])
         ],[
         AC_DEFINE([wb_random],[rand],[Use rand to generate random values])
@@ -126,7 +116,8 @@ AC_CHECK_FUNCS([strtol])
 #-----------------------------
 #      Compiler Features:
 #-----------------------------
-AX_GCC_FUNC_ATTRIBUTE([constructor])
+AX_GCC_FUNC_ATTRIBUTE([constructor],[],[
+    AC_MSG_ERROR([__attribute__((constructor)) required for build])])
 AC_C_RESTRICT
 AC_C_INLINE
 
