@@ -58,7 +58,7 @@ const char*
 wouldblock_version_str(void)
 {
     return VERSION;
-};
+}
 
 
 /*---------------------------------
@@ -75,7 +75,7 @@ static long wb_get_arg_range(const char* val_name)
         r_val = LWB_MAX(0,LWB_MIN(r_val,100));
     };
     return r_val;
-};
+}
 
 /* Library initialization.
  * TODO: use .init linker mechanism if __attribute__((constructor)) is not
@@ -83,7 +83,7 @@ static long wb_get_arg_range(const char* val_name)
  */
 static void __attribute__((constructor)) wb_init()
 {
-#if HAVE_SRANDDEV
+#if HAVE_SRANDOMDEV
     srandomdev();
 #else
     srandom(time(NULL));
@@ -108,7 +108,7 @@ static void __attribute__((constructor)) wb_init()
         std_send = dlsym(RTLD_NEXT, "send");
     };
     return;
-};
+}
 
 #if HAVE_ACCEPT
 /* accept (2) override: invoke the real system accept LWB_PROB_ACCEPT percent
@@ -132,7 +132,7 @@ accept(
         errno = EAGAIN;
         return -1;
     };
-};
+}
 #endif /* HAVE_ACCEPT */
 
 #if HAVE_RECV
@@ -152,7 +152,7 @@ recv(int socket, void* buffer, size_t length, int flags)
         return -1;
     };
     return 0;
-};
+}
 #endif /* HAVE_RECV */
 
 #if HAVE_SEND
@@ -172,7 +172,7 @@ send(int socket, const void* buffer, size_t length, int flags)
         return -1;
     };
     return 0;
-};
+}
 #endif /* HAVE_SEND */
 
 /* EOF */
