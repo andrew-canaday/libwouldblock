@@ -104,38 +104,13 @@ static long wb_get_arg_range(const char* val_name)
     return r_val;
 }
 
-/* Wrapper for srandom(dev)/srand(dev), as available. */
-static void wb_seed_random(void)
-{
-#if HAVE_SRANDOMDEV
-    srandomdev();
-#elif HAVE_SRANDOM
-    srandom(time(NULL));
-#elif HAVE_SRANDDEV
-    sranddev();
-#else
-    srand(time(NULL));
-#endif
-    return;
-}
-
-/* Wrapper for random/rand, as available. */
-static inline long wb_random(void)
-{
-#if HAVE_RANDOM
-    return random();
-#else
-    return rand();
-#endif /* HAVE_RANDOM */
-}
-
 
 /*--------------------------------*
  * Library initialization:
  *--------------------------------*/
 static void __attribute__((constructor)) wb_init()
 {
-    wb_seed_random();
+    wb_srandom(time(NULL));
     accept_min = wb_get_arg_range("WB_PROB_ACCEPT");
     recv_min = wb_get_arg_range("WB_PROB_SEND");
     send_min = wb_get_arg_range("WB_PROB_RECV");
