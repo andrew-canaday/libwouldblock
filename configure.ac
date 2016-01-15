@@ -26,7 +26,7 @@
 #           Init:
 #-----------------------------
 AC_INIT(
-    [libwouldblock], [0.0.1],
+    [libwouldblock], [0.1.0],
     [andrew.canaday@nytimes.com],[libwouldblock],
     [https://github.com/andrew-canaday/libwouldblock])
 AC_CONFIG_AUX_DIR([./build-aux])
@@ -44,7 +44,7 @@ AC_SUBST([PACKAGE_COPYRIGHT],
 AC_SUBST([PACKAGE_DESCRIPTION],
     ["C library for testing non-blocking IO"])
 AC_SUBST([PACKAGE_SUMMARY],["C library for testing non-blocking IO"])
-AC_SUBST([WOULDBLOCK_LIB_VERSION],[0:0:0])
+AC_SUBST([WOULDBLOCK_LIB_VERSION],[1:0:1])
 
 # HACK: get the version components (note: we get awk early here)
 AC_PROG_AWK
@@ -72,13 +72,9 @@ AX_LIB_SOCKET_NSL
 #-----------------------------
 #           Headers:
 #-----------------------------
-AC_HEADER_ASSERT
 AC_HEADER_STDC
-AC_CHECK_HEADERS([sys/socket.h])
-AC_CHECK_HEADERS([netinet/in.h])
-AC_CHECK_HEADERS([stddef.h])
-AC_CHECK_HEADERS([sys/time.h])
-AC_CHECK_HEADERS([dlfcn.h])
+AC_CHECK_HEADERS([sys/types.h sys/socket.h dlfcn.h],[],[
+    AC_MSG_ERROR([Required header files not found])])
 
 
 #-----------------------------
@@ -92,30 +88,36 @@ AC_TYPE_SSIZE_T
 #        Declarations:
 #-----------------------------
 AC_CHECK_DECLS([RTLD_NEXT],[],
-        [AC_MSG_ERROR([libwould build requires "$as_decl_name" definition])],
-        [#include <dlfcn.h>])
+    [AC_MSG_ERROR([libwould build requires "$as_decl_name" definition])],
+    [#include <dlfcn.h>])
 
 #-----------------------------
 #       Function Checks:
 #-----------------------------
-AC_FUNC_MALLOC
-AC_CHECK_FUNCS([accept])
-AC_CHECK_FUNCS([send])
-AC_CHECK_FUNCS([recv])
-AC_CHECK_FUNCS([dlsym])
-AC_CHECK_FUNCS([rand])
-AC_CHECK_FUNCS([srand])
-AC_CHECK_FUNCS([sranddev])
-AC_CHECK_FUNCS([random])
-AC_CHECK_FUNCS([srandom])
-AC_CHECK_FUNCS([srandomdev])
-AC_CHECK_FUNCS([getenv])
+
+# Required:
+AC_CHECK_FUNCS([getenv dlsym time],[],[
+    AC_MSG_ERROR([Required functions not found])])
+
+# For override:
+AC_CHECK_FUNCS([accept send recv])
+
+# Optional:
+AC_CHECK_FUNCS([random srandom],[
+        AC_DEFINE([wb_random],[random],[Use random to generate random values])
+        AC_DEFINE([wb_srandom],[srandom],[Use srandom to seed random values])
+        ],[
+        AC_DEFINE([wb_random],[rand],[Use rand to generate random values])
+        AC_DEFINE([wb_srandom],[srand],[Use srand to seed random values])
+        ])
+AC_CHECK_FUNCS([strtol])
 
 
 #-----------------------------
 #      Compiler Features:
 #-----------------------------
-AX_GCC_FUNC_ATTRIBUTE([constructor])
+AX_GCC_FUNC_ATTRIBUTE([constructor],[],[
+    AC_MSG_ERROR([__attribute__((constructor)) required for build])])
 AC_C_RESTRICT
 AC_C_INLINE
 
