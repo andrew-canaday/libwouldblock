@@ -29,6 +29,8 @@ exec_prefix=@exec_prefix@
 export LWB_PROB_ACCEPT
 export LWB_PROB_RECV
 export LWB_PROB_SEND
+export LWB_RECV_SIZE
+export LWB_SEND_SIZE
 
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
     LD_PRELOAD=@libdir@/libwouldblock.so \
