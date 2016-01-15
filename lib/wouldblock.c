@@ -59,9 +59,16 @@ typedef ssize_t
 /*--------------------------------
  *            Global:
  *--------------------------------*/
-static long accept_min;
-static long recv_min;
-static long send_min;
+/* Used to determine whether or not to block: */
+static long wb_accept_min;
+static long wb_recv_min;
+static long wb_send_min;
+
+/* Use to perform partial send/recv: */
+static long wb_recv_size;
+static long wb_send_size;
+
+/* Pointers to the wrapped syscalls: */
 static accept_fn_t std_accept;
 static recv_fn_t std_recv;
 static send_fn_t std_send;
@@ -84,24 +91,33 @@ wouldblock_version_str(void)
  *                                Utility:
  *
  *---------------------------------------------------------------------------*/
-/* Used to parse environment args. */
-static long wb_get_arg_range(const char* val_name)
+/* Get an environment variable as long.
+ * Return true on success; false otherwise.
+ */
+static long wb_get_arg_long(const char* val_name, long def_val)
 {
-    long r_val = WB_PROB_MAX;
+    long val = def_val;
     char* arg_val = getenv(val_name);
     if( arg_val ) {
 #if HAVE_STRTOL
         char* endptr;
-        r_val = strtol(arg_val, &endptr, 10);
+        val = strtol(arg_val, &endptr, 10);
         if(endptr == arg_val) {
-            return WB_PROB_MAX;
+            val = def_val;
         };
 #else
-        r_val = atoi(arg_val);
+        val = atoi(arg_val);
 #endif /* HAVE_STRTOL */
-        r_val = WB_MAX(0,WB_MIN(r_val,WB_PROB_MAX));
     };
-    return r_val;
+    return val;
+}
+
+
+/* Used to parse environment args. */
+static long wb_get_arg_range(const char* val_name)
+{
+    long val = wb_get_arg_long(val_name, WB_PROB_MAX);
+    return WB_MAX(0,WB_MIN(val,WB_PROB_MAX));
 }
 
 
@@ -111,9 +127,11 @@ static long wb_get_arg_range(const char* val_name)
 static void __attribute__((constructor)) wb_init()
 {
     wb_srandom(time(NULL));
-    accept_min = wb_get_arg_range("WB_PROB_ACCEPT");
-    recv_min = wb_get_arg_range("WB_PROB_SEND");
-    send_min = wb_get_arg_range("WB_PROB_RECV");
+    wb_accept_min = wb_get_arg_range("WB_PROB_ACCEPT");
+    wb_recv_min = wb_get_arg_range("WB_PROB_SEND");
+    wb_send_min = wb_get_arg_range("WB_PROB_RECV");
+    wb_recv_size = wb_get_arg_long("WB_RECV_SIZE", 0);
+    wb_send_size = wb_get_arg_long("WB_SEND_SIZE", 0);
     
     /* Initialize the real accept function pointer: */
     if( !std_accept ) {
@@ -151,7 +169,7 @@ accept(
     long p_accept = wb_random() % WB_PROB_MAX;
 
     /* Block, artificially: */
-    if( p_accept < accept_min ) {
+    if( p_accept < wb_accept_min ) {
         return std_accept(socket, address, address_len);
     }
     /* Just execute standard accept: */
@@ -173,8 +191,15 @@ recv(int socket, void* buffer, size_t length, int flags)
     long p_recv = wb_random() % WB_PROB_MAX;
 
     /* Block, artificially: */
-    if( p_recv < recv_min ) {
-        return std_recv(socket, buffer, length, flags);
+    if( p_recv < wb_recv_min ) {
+        size_t recv_len;
+        if( !wb_recv_size ) {
+            recv_len = length;
+        }
+        else {
+            recv_len = WB_MIN(length, wb_recv_size);
+        }
+        return std_recv(socket, buffer, recv_len, flags);
     }
     /* Just execute standard recv: */
     else {
@@ -196,8 +221,15 @@ send(int socket, const void* buffer, size_t length, int flags)
     long p_send = wb_random() % WB_PROB_MAX;
 
     /* Block, artificially: */
-    if( p_send < send_min ) {
-        return std_send(socket, buffer, length, flags);
+    if( p_send < wb_send_min ) {
+        size_t send_len;
+        if( !wb_send_size ) {
+            send_len = length;
+        }
+        else {
+            send_len = WB_MIN(length, wb_send_size);
+        }
+        return std_send(socket, buffer, send_len, flags);
     }
     /* Just execute standard send: */
     else {
