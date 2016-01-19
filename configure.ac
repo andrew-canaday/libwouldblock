@@ -26,11 +26,12 @@
 #           Init:
 #-----------------------------
 AC_INIT(
-    [libwouldblock], [0.1.0],
+    [libwouldblock], [0.1.1],
     [andrew.canaday@nytimes.com],[libwouldblock],
     [https://github.com/andrew-canaday/libwouldblock])
 AC_CONFIG_AUX_DIR([./build-aux])
 AC_CONFIG_MACRO_DIR([m4])
+AC_USE_SYSTEM_EXTENSIONS
 
 #-----------------------------
 #         Metadata:
@@ -44,7 +45,7 @@ AC_SUBST([PACKAGE_COPYRIGHT],
 AC_SUBST([PACKAGE_DESCRIPTION],
     ["C library for testing non-blocking IO"])
 AC_SUBST([PACKAGE_SUMMARY],["C library for testing non-blocking IO"])
-AC_SUBST([WOULDBLOCK_LIB_VERSION],[1:0:1])
+AC_SUBST([WOULDBLOCK_LIB_VERSION],[1:1:1])
 
 # HACK: get the version components (note: we get awk early here)
 AC_PROG_AWK
@@ -88,16 +89,29 @@ AC_TYPE_SSIZE_T
 #        Declarations:
 #-----------------------------
 AC_CHECK_DECLS([RTLD_NEXT],[],
-    [AC_MSG_ERROR([libwould build requires "$as_decl_name" definition])],
-    [#include <dlfcn.h>])
+    [AC_MSG_ERROR([libwouldblock build requires "$as_decl_name" definition])],
+    [#define _GNU_SOURCE
+     #include <dlfcn.h>
+    ])
 
 #-----------------------------
 #       Function Checks:
 #-----------------------------
 
 # Required:
-AC_CHECK_FUNCS([getenv dlsym time],[],[
+AC_CHECK_FUNCS([getenv time],[],[
     AC_MSG_ERROR([Required functions not found])])
+
+AC_MSG_CHECKING([whether dlsym(RTLD_NEXT,...) is available])
+	AC_TRY_COMPILE([
+		#define _GNU_SOURCE
+		#include <dlfcn.h>
+	],
+	[void *foo = dlsym (RTLD_NEXT, "exit");],
+	[AC_MSG_RESULT(yes)],
+	[AC_MSG_RESULT(no)
+         AC_MSG_ERROR([libwouldblock build requires dlsym(RTLD_NEXT,...)])
+	])
 
 # For override:
 AC_CHECK_FUNCS([accept send recv])
