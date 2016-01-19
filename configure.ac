@@ -31,6 +31,7 @@ AC_INIT(
     [https://github.com/andrew-canaday/libwouldblock])
 AC_CONFIG_AUX_DIR([./build-aux])
 AC_CONFIG_MACRO_DIR([m4])
+AC_USE_SYSTEM_EXTENSIONS
 
 #-----------------------------
 #         Metadata:
@@ -89,7 +90,9 @@ AC_TYPE_SSIZE_T
 #-----------------------------
 AC_CHECK_DECLS([RTLD_NEXT],[],
     [AC_MSG_ERROR([libwould build requires "$as_decl_name" definition])],
-    [#include <dlfcn.h>])
+    [#define _GNU_SOURCE
+     #include <dlfcn.h>
+    ])
 
 #-----------------------------
 #       Function Checks:
