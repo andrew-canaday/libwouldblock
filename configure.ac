@@ -89,7 +89,7 @@ AC_TYPE_SSIZE_T
 #        Declarations:
 #-----------------------------
 AC_CHECK_DECLS([RTLD_NEXT],[],
-    [AC_MSG_ERROR([libwould build requires "$as_decl_name" definition])],
+    [AC_MSG_ERROR([libwouldblock build requires "$as_decl_name" definition])],
     [#define _GNU_SOURCE
      #include <dlfcn.h>
     ])
@@ -99,8 +99,19 @@ AC_CHECK_DECLS([RTLD_NEXT],[],
 #-----------------------------
 
 # Required:
-AC_CHECK_FUNCS([getenv dlsym time],[],[
+AC_CHECK_FUNCS([getenv time],[],[
     AC_MSG_ERROR([Required functions not found])])
+
+AC_MSG_CHECKING([whether dlsym(RTLD_NEXT,...) is available])
+	AC_TRY_COMPILE([
+		#define _GNU_SOURCE
+		#include <dlfcn.h>
+	],
+	[void *foo = dlsym (RTLD_NEXT, "exit");],
+	[AC_MSG_RESULT(yes)],
+	[AC_MSG_RESULT(no)
+         AC_MSG_ERROR([libwouldblock build requires dlsym(RTLD_NEXT,...)])
+	])
 
 # For override:
 AC_CHECK_FUNCS([accept send recv])
