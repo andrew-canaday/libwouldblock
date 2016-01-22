@@ -26,7 +26,7 @@
 #           Init:
 #-----------------------------
 AC_INIT(
-    [libwouldblock], [0.1.2],
+    [libwouldblock], [0.1.3],
     [andrew.canaday@nytimes.com],[libwouldblock],
     [https://github.com/andrew-canaday/libwouldblock])
 AC_CONFIG_AUX_DIR([./build-aux])
@@ -163,17 +163,14 @@ AM_CONDITIONAL([MAINTAINER_DEBUG],[test "x$enable_maintainer_debug" = "xyes"])
 #          Output:
 #-----------------------------
 AC_CONFIG_HEADERS( [wb_config.h] )
-AC_CONFIG_FILES(
-    [
+AC_CONFIG_FILES([
     Makefile
     libwouldblock-$PACKAGE_MAJOR.pc:libwouldblock.pc.in
     lib/Makefile
     bin/Makefile
-    bin/wouldblock.sh
-    ],[
-    chmod u+x bin/wouldblock.sh
-    ]
-)
+    ])
+AC_CONFIG_FILES([bin/wouldblock.sh], [chmod u+x bin/wouldblock.sh])
+
 AC_OUTPUT
 AS_BOX([libwouldblock configuration complete])
 
