@@ -26,7 +26,7 @@
 #           Init:
 #-----------------------------
 AC_INIT(
-    [libwouldblock], [0.1.3],
+    [libwouldblock], [0.1.4],
     [andrew.canaday@nytimes.com],[libwouldblock],
     [https://github.com/andrew-canaday/libwouldblock])
 AC_CONFIG_AUX_DIR([./build-aux])
@@ -45,7 +45,7 @@ AC_SUBST([PACKAGE_COPYRIGHT],
 AC_SUBST([PACKAGE_DESCRIPTION],
     ["C library for testing non-blocking IO"])
 AC_SUBST([PACKAGE_SUMMARY],["C library for testing non-blocking IO"])
-AC_SUBST([WOULDBLOCK_LIB_VERSION],[1:1:1])
+AC_SUBST([WOULDBLOCK_LIB_VERSION],[1:2:1])
 
 # HACK: get the version components (note: we get awk early here)
 AC_PROG_AWK
