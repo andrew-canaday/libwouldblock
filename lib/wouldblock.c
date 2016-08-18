@@ -129,8 +129,8 @@ static void __attribute__((constructor)) wb_init()
 {
     wb_srandom(time(NULL));
     wb_accept_min = wb_get_arg_range("WB_PROB_ACCEPT");
-    wb_recv_min = wb_get_arg_range("WB_PROB_SEND");
-    wb_send_min = wb_get_arg_range("WB_PROB_RECV");
+    wb_recv_min = wb_get_arg_range("WB_PROB_RECV");
+    wb_send_min = wb_get_arg_range("WB_PROB_SEND");
     wb_recv_size = wb_get_arg_long("WB_RECV_SIZE", 0);
     wb_send_size = wb_get_arg_long("WB_SEND_SIZE", 0);
     
